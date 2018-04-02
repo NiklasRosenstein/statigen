@@ -487,6 +487,7 @@ def get_argument_parser(prog=None):
   parser.add_argument('-c', '--config', help='Alternative configuration file.')
   parser.add_argument('-b', '--build-directory', help='Override build directory.')
   parser.add_argument('-t', '--template', help='Override template name.')
+  parser.add_argument('-o', '--open', action='store_true', help='Open the index page after the build completed.')
   return parser
 
 
@@ -517,6 +518,10 @@ def main(argv=None, prog=None):
     template_renderer = import_class(config.get('templateRenderer', __name__ + '.JinjaTemplateRenderer'))()
   )
   site_template.render(context)
+
+  if args.open:
+    import webbrowser
+    webbrowser.open(path.join(config['statigen.buildDirectory'], 'index.html'))
 
 
 _entry_point = lambda: sys.exit(main())
