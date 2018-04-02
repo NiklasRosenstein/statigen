@@ -1,0 +1,12 @@
+[statigen]
+template = "default/docs"
+urlFormat = "file"
+
+[site]
+title = "Statigen Documentation"
+github = "NiklasRosenstein/statigen"
+
+[author]
+name = "Niklas Rosenstein"
+email = "rosensteinniklas@gmail.com"
+github = "NiklasRosenstein"
