@@ -203,7 +203,7 @@ class PythonSiteTemplate(SiteTemplate):
 
     def find_template():
       for dirname in [parent_dir, templates_dir]:
-        for choice in [name, name + '.py']:
+        for choice in [name, name + '.py', path.join(name, 'site-template.py')]:
           filename = path.join(dirname, choice)
           if path.isfile(filename):
             return filename
