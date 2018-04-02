@@ -153,7 +153,7 @@ class MarkdownJinjaContentRenderer(ContentRenderer):
   #       markdown file.
 
   def render_content(self, context, content):
-    return markdown.markdown(content.body)
+    return markdown.markdown(content.body, ['extra'])
 
 
 class JinjaTemplateRenderer(TemplateRenderer):
@@ -361,7 +361,7 @@ class Context(object):
     self.template_renderer = template_renderer or JinjaTemplateRenderer()
     self.globals = {}
 
-    self.config.setdefault('statigen.urlFormat', 'directory')
+    self.config.setdefault('statigen.urlFormat', 'file')
     self.config.setdefault('statigen.contentDirectory', '.')
     self.config.setdefault('statigen.buildDirectory', 'build')
 
@@ -415,7 +415,7 @@ class Context(object):
     """
 
     filename = self.url_to_abs_filename(__url)
-    print('rendering', filename)
+    print('rendering {} ({})'.format(filename, __url))
 
     vars.setdefault('context', self)
     vars.setdefault('config', self.config)
@@ -504,7 +504,7 @@ def main(argv=None, prog=None):
   if args.template:
     config['statigen.template'] = args.template
 
-  site_template = PythonSiteTemplate.load(config.get('statigen.template', 'default/blog'))
+  site_template = PythonSiteTemplate.load(config.get('statigen.template', 'default/docs'))
   context = Context(
     config = config,
     site_template = site_template,

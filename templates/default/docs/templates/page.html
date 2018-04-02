@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <title>{{ page.config['title'] }}</title>
+    <link href="{{ url_for('/static/style.css') }}" rel="stylesheet">
+  </head>
+  <body>
+    {% macro toc(pages, current_page) %}
+    <ul>
+      {% for page in pages %}
+      <li><a class="{{'active' if page == current_page else ''}}" href="{{ url_to(page.url) }}">{{ page.config['title'] }}</a></li>
+      {{ toc(page.children, current_page) }}
+      {% endfor %}
+    </ul>
+    {% endmacro %}
+    <div class="sidebar">
+      <div class="title">
+        <p><a href="{{ url_to('/') }}">{{ config.get('site.title', 'Untitled') }}</a></p>
+      </div>
+      <hr/>
+      <div class="toc">
+        {{ toc(pages, page) }}
+      </div>
+      {% if 'author' in config %}
+        <hr/>
+        <div class="author">
+          <p class="subtitle">About the author:</p>
+          {% if 'author.github' in config %}
+          <a href="https://github.com/{{ config['author.github'] }}">@{{ config['author.github'] }} on GitHub</a>
+          {% endif %}
+          {% if 'author.email' in config %}
+          <a href="mailto:{{ config['author.email'] }}">Contact via email</a>
+          {% endif %}
+        </div>
+      {% endif %}
+      <hr/>
+      <div class="statigen-notice">Built with <a href="https://github.com/NiklasRosenstein/statigen">statigen</a>.</div>
+    </div>
+    <div class="content">
+      <div class="content-inner">
+        {% if page.config.get('renderTitle', True) %}
+          <h1>{{ page.config['title'] }}</h1>
+        {% endif %}
+        {{ page.render()|safe }}
+      </div>
+    </div>
+  </body>
+</html>
