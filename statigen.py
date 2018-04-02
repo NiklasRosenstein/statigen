@@ -485,7 +485,7 @@ def get_argument_parser(prog=None):
   parser = argparse.ArgumentParser(prog=prog)
   parser.add_argument('--version', action='version', version=__version__, help='Display the version and exit.')
   parser.add_argument('-c', '--config', help='Alternative configuration file.')
-  parser.add_argument('-b', '--build-directory', help='Alternative build directory.')
+  parser.add_argument('-b', '--build-directory', help='Override build directory.')
   parser.add_argument('-t', '--template', help='Override template name.')
   return parser
 
@@ -519,5 +519,8 @@ def main(argv=None, prog=None):
   site_template.render(context)
 
 
+_entry_point = lambda: sys.exit(main())
+
+
 if __name__ == '__main__':
-  sys.exit(main())
+  _entry_point()
