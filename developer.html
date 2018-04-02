@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <title>Developer Documentation</title>
+    <link href="static/style.css" rel="stylesheet">
+  </head>
+  <body>
+    
+    <div class="sidebar">
+      <div class="title">
+        <p><a href="index.html">Statigen Documentation</a></p>
+      </div>
+      <hr/>
+      <div class="toc">
+        
+    <ul>
+      
+      <li><a class="" href="index.html">Home</a></li>
+      
+    <ul>
+      
+    </ul>
+    
+      
+      <li><a class="" href="getting-started.html">Getting Started</a></li>
+      
+    <ul>
+      
+    </ul>
+    
+      
+      <li><a class="" href="config.html">Configuration</a></li>
+      
+    <ul>
+      
+    </ul>
+    
+      
+      <li><a class="active" href="developer.html">Developer Documentation</a></li>
+      
+    <ul>
+      
+    </ul>
+    
+      
+    </ul>
+    
+      </div>
+      
+        <hr/>
+        <div class="author">
+          <p class="subtitle">About the author:</p>
+          
+          <a href="https://github.com/NiklasRosenstein">@NiklasRosenstein on GitHub</a>
+          
+          
+          <a href="mailto:rosensteinniklas@gmail.com">Contact via email</a>
+          
+        </div>
+      
+      <hr/>
+      <div class="statigen-notice">Built with <a href="https://github.com/NiklasRosenstein/statigen">statigen</a>.</div>
+    </div>
+    <div class="content">
+      <div class="content-inner">
+        
+          <h1>Developer Documentation</h1>
+        
+        <h2>Site Templates</h2>
+<p>Site templates define the structure and looks of the generated static HTML
+page. A site template is usually a Python script that implements at least
+a <code>render(context)</code> function. It may also implement the following functions:</p>
+<ul>
+<li><code>init(context)</code></li>
+<li><code>content_loaded(context, content)</code></li>
+</ul>
+<p>The <code>render()</code> function, when called, must use the <code>statigen.Context</code> API
+to produce HTML pages. Below is a simple template that renders all content
+files with the same <code>page.html</code> template (not recursive).</p>
+<pre><code class="python">def render(context):
+  pages = context.load_content_from_directory('.')
+  pages.sort(key=lambda p: (
+    p.config.get('ordering', 999), p.config.get('title', p.name)))
+  for i, page in enumerate(pages):
+    url = '/' if i == 0 else '/' + p.name
+    context.render(url, 'page.html', page=page, pages=pages)
+  context.copy('/static', 'static')
+</code></pre>
+
+<h2>Template Renderers</h2>
+<p>Template renderers implement the rendering of the HTML template files that a
+Site Template delivers. The default renderer expects Jinja templates. Below is
+a simple template that plays with the site-template displayed above.</p>
+<pre><code class="html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;{{ page.config.get('title', p.name) }}&lt;/title&gt;
+    &lt;link href=&quot;{{ url_for('/static/style.css') }}&quot; rel=&quot;stylesheet&quot;&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;ul&gt;
+      {% for p in pages %}
+      &lt;li class=&quot;{{ 'active' if p == page else '' }}&quot;&gt;
+        &lt;a href=&quot;{{ url_to('/' + p.name) }}&quot;&gt;{{ p.config.get('title', p.name) }}&lt;/a&gt;
+      &lt;/li&gt;
+      {% endfor %}
+    &lt;/ul&gt;
+    &lt;h1&gt;{{ page.config.get('title', p.name) }}&lt;/h1&gt;
+    {{ page.render()|safe }}
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h2>Content Loaders</h2>
+<p>Content loaders implement loading <code>statigen.Content</code> objects from a Content ID
+or from a directory relative to the content directory. The default loader
+expects <code>.md</code> (Markdown) files and passes the first section enclosed in <code>+++</code>
+to TOML.</p>
+<p>Below is an example content file <code>home.md</code> which could be used with the
+site-template and template renderer displayed above.</p>
+<pre><code>+++
+title = &quot;Home&quot;
+ordering = 0
++++
+
+Welcome to my first site generated with Statigen!
+</code></pre>
+
+<h2>Content Renderers</h2>
+<p>Content renderers take the content delivered by a Content loader and renders
+it. The default renderer uses the Python Markdown module and renders it with
+all extensions enabled.</p>
+      </div>
+    </div>
+  </body>
+</html>

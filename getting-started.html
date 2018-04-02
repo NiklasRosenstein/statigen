@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <title>Getting Started</title>
+    <link href="static/style.css" rel="stylesheet">
+  </head>
+  <body>
+    
+    <div class="sidebar">
+      <div class="title">
+        <p><a href="index.html">Statigen Documentation</a></p>
+      </div>
+      <hr/>
+      <div class="toc">
+        
+    <ul>
+      
+      <li><a class="" href="index.html">Home</a></li>
+      
+    <ul>
+      
+    </ul>
+    
+      
+      <li><a class="active" href="getting-started.html">Getting Started</a></li>
+      
+    <ul>
+      
+    </ul>
+    
+      
+      <li><a class="" href="config.html">Configuration</a></li>
+      
+    <ul>
+      
+    </ul>
+    
+      
+      <li><a class="" href="developer.html">Developer Documentation</a></li>
+      
+    <ul>
+      
+    </ul>
+    
+      
+    </ul>
+    
+      </div>
+      
+        <hr/>
+        <div class="author">
+          <p class="subtitle">About the author:</p>
+          
+          <a href="https://github.com/NiklasRosenstein">@NiklasRosenstein on GitHub</a>
+          
+          
+          <a href="mailto:rosensteinniklas@gmail.com">Contact via email</a>
+          
+        </div>
+      
+      <hr/>
+      <div class="statigen-notice">Built with <a href="https://github.com/NiklasRosenstein/statigen">statigen</a>.</div>
+    </div>
+    <div class="content">
+      <div class="content-inner">
+        
+          <h1>Getting Started</h1>
+        
+        <h2>Installing Statigen</h2>
+<p>Statigen can be installed from <a href="https://pypi.python.org/pypi">PyPI</a> via Pip.</p>
+<pre><code>pip install statigen
+</code></pre>
+<p>Once the installation is complete, try the following command to see if it
+worked:</p>
+<pre><code>statigen --version
+</code></pre>
+<h2>Starting a project</h2>
+<p>Create a directory where you want your page source and configuration files to
+live in, then create a <code>.statigen.toml</code> file and specify your site template
+and title.</p>
+<pre><code>$ mkdir mysite &amp;&amp; cd mysite
+$ cat &gt; .statigen.toml &lt;&lt;EOF
+[statigen]
+template = &quot;default/docs&quot;
+
+[site]
+title = &quot;My Site&quot;
+EOF
+</code></pre>
+
+<blockquote>
+<p>Statigen comes with the following templates out of the box:</p>
+<ul>
+<li><a href="./templates/blog">default/blog</a></li>
+<li><a href="./templates/docs">default/docs</a> (the one you are looking at right now)</li>
+</ul>
+</blockquote>
+<p>Now create a bunch of <code>.md</code> files in the same directory. The section enclosed
+in <code>+++</code> will be parsed as TOML and allows you to define properties in a file
+that may be respected by the template.</p>
+<pre><code>$ cat &gt; index.md &lt;&lt;EOF
++++
+title = &quot;Home&quot;
+renderTitle = false
+ordering = 0
++++
+# Welcome to my page!
+EOF
+$ cat &gt; another.md &lt;&lt;EOF
++++
+title = &quot;Another Page&quot;
+ordering = 1
++++
+Here's another page!
+EOF
+</code></pre>
+
+<h2>Building the site</h2>
+<p>Producing the static HTML site is as simple as running <code>statigen</code> from the
+command-line.</p>
+<pre><code>$ statigen
+rendering build/index.html (/)
+rendering build/another.html (/another)
+copying static ==&gt; build/static (/static)
+  from /home/niklas/.local/lib/python3.6/site-packages/statigen/templates/default/docs/static
+</code></pre>
+      </div>
+    </div>
+  </body>
+</html>
