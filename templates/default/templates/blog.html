@@ -1,0 +1,24 @@
+{% extends "_base.html" %}
+{% block content %}
+  <div class="post-list">
+    {% for post in posts %}
+    {% set url = url_to('{}/{}'.format(page.config['url'], post.name)) %}
+    <div class="item">
+      <h1 class="title">
+        <a href="{{ url }}">
+          {{ post.config.get('title', 'Untitled') }}
+        </a>
+      </h1>
+      {% if 'date' in post.config %}
+      <p class="date">{{ post.config['date'].strftime(config['site.dateFormat']) }}</p>
+      {% endif %}
+      {% if 'description' in post.config %}
+      <p class="description">
+        {{ post.config['description'] }}
+      </p>
+      {% endif %}
+      <a class="keep-reading" href="{{ url }}">Keep Reading</a>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}

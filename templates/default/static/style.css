@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css?family=Oswald:200,400|Roboto+Mono:400,500|Slabo+27px');
+
+.cl { clear: both; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Slabo 27px", serif;
+  color: #333;
+  background-color: #ebeff2;
+}
+a {
+  color: #3af;
+  text-decoration: none;
+}
+
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+  color: inherit;
+}
+h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover, h6 a:hover {
+  color: #195683;
+}
+
+.wrapper {
+  max-width: 1024px;
+  margin: auto;
+  padding: 1em;
+}
+.header {
+  font-family: "Oswald", sans-serif;
+  font-size: 120%;
+  font-weight: 300;
+  margin-bottom: 3em;
+}
+.header .blog-subtitle {
+  margin-top: -1.2em;
+  font-size: 120%;
+  font-weight: 300;
+}
+.header .avatar {
+  float: right;
+  width: 90px;
+  border-radius: 50px;
+}
+.navigation {
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+}
+.navigation .item {
+  display: inline-block;
+  font-family: "Oswald", sans-serif;
+  font-size: 120%;
+  font-weight: 200;
+  margin: 0 0.3em;
+  line-height: 1.5;
+  color: #3af;
+}
+.navigation .item a {
+  text-decoration: none;
+  color: inherit;
+}
+.content {
+  padding: 1em 0;
+}
+.content .post-list .item {
+  border-radius: 3px;
+  margin: 1em -1em;
+  padding: 0 1em 1em 1em;
+}
+.content .post-list .item .title {
+  margin-bottom: 0;
+}
+.content .post-list .item .date {
+  margin-top: 0;
+  text-transform: uppercase;
+  font-family: "Oswald";
+  font-weight: 200;
+}
+.content .post-list .item .keep-reading {
+  text-transform: uppercase;
+  font-family: "Oswald";
+  font-weight: 200;
+}
+.footer {
+  padding: 0.6em;
+  background-color: #143248;
+  color: #eee;
+}
+.footer .inner {
+  max-width: 1024px;
+  margin: auto;
+}
+.footer .statigen-notice {
+  font-size: 80%;
+}

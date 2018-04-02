@@ -1,0 +1,9 @@
+[statigen]
+template = "default/blog"
+urlFormat = "file"
+
+[site]
+title = "Example Blog"
+subtitle = "a statigen example blog"
+avatar = "/static/logo.png"
+copyrightNotice = "Copyright &copy; 2018 &ndash; Your Copyright"

@@ -1,0 +1,5 @@
+{% extends "_base.html" %}
+{% block content %}
+  <h1>{{ post.config.get('title', 'Untitled') }}</h1>
+  {{ post.render() }}
+{% endblock %}

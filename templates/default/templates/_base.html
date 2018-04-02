@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ title }}</title>
+    <link href="{{ url_for('/static/style.css') }}" rel="stylesheet">
+  </head>
+  <body>
+    <div class="wrapper">
+      {% include "partials/header.html" %}
+      <div class="content">
+        {% block content %}
+        No content.
+        {% endblock %}
+      </div>
+    </div>
+    {% include "partials/footer.html" %}
+  </body>
+</html>

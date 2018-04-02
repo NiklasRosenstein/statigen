@@ -1,0 +1,19 @@
+<div class="header">
+  {% if 'site.avatar' in config %}
+    <img class="avatar" src="{{ url_for(config['site.avatar']) }}">
+  {% endif %}
+  <h1 class="blog-title">
+    <a href="{{ url_to('/') }}">
+      {{ config.get('site.title', 'Site Title') }}
+    </a>
+  </h1>
+  {% if 'site.subtitle' in config %}
+    <h2 class="blog-subtitle">{{ config['site.subtitle'] }}</h2>
+  {% endif %}
+  <div class="cl"></div>
+</div>
+<div class="navigation">
+  {% for page in pages %}
+  <div class="item"><a href="{{ url_to(page.config['url']) }}">{{ page.config.get('title', page.name) }}</a></div>
+  {% endfor %}
+</div>
