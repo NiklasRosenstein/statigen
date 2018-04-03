@@ -3,7 +3,4 @@
   <h1>{{ post.config.get('title', 'Untitled') }}</h1>
   {% include "partials/post-date.html" %}
   {{ post.render() }}
-  {% if post.config.get('disqus', True) %}
-    {% include "partials/disqus.html" %}
-  {% endif %}
 {% endblock %}
