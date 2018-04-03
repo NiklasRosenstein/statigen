@@ -32,6 +32,7 @@ Template renderers implement the rendering of the HTML template files that a
 Site Template delivers. The default renderer expects Jinja templates. Below is
 a simple template that plays with the site-template displayed above.
 
+{% raw %}
 ```html
 <!DOCTYPE html>
 <html>
@@ -52,6 +53,7 @@ a simple template that plays with the site-template displayed above.
   </body>
 </html>
 ```
+{% endraw %}
 
 ## Content Loaders
 
