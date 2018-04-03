@@ -27,6 +27,7 @@ def render(context):
     posts_dir = page.config.get('displayPostsFrom')
     if posts_dir:
       posts = context.load_content_from_directory(posts_dir)
+      posts = [x for x in posts if not x.config.get('draft')]
       posts.sort(key=lambda p: p.config.get('date', datetime.now()), reverse=True)
       context.render(url, 'blog.html', page=page, posts=posts)
       for post in posts:
