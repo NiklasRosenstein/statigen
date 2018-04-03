@@ -31,6 +31,7 @@ from nr.datastructures.mappings import ChainDict
 from distutils.dir_util import copy_tree
 
 import abc
+import io
 import jinja2
 import markdown
 import os
@@ -123,7 +124,7 @@ class SiteTemplate(six.with_metaclass(abc.ABCMeta)):
 class MarkdownTomlContentLoader(ContentLoader):
 
   def _load_file(self, context, filename, name):
-    with open(filename) as fp:
+    with io.open(filename, encoding=context.content_encoding) as fp:
       content = fp.read()
     if content.lstrip().startswith('+++'):
       index = content.find('+++') + 3
@@ -367,6 +368,11 @@ class Context(object):
     self.config.setdefault('statigen.urlFormat', 'file')
     self.config.setdefault('statigen.contentDirectory', '.')
     self.config.setdefault('statigen.buildDirectory', 'build')
+    self.config.setdefault('statigen.contentEncoding', 'utf8')
+    self.config.setdefault('statigen.siteEncoding', 'utf8')
+
+    self.content_encoding = self.config['statigen.contentEncoding']
+    self.site_encoding = self.config['statigen.siteEncoding']
 
     self.site_template.init(self)
 
@@ -427,7 +433,7 @@ class Context(object):
     vars = ChainDict(vars, self.globals)
 
     path.makedirs(path.dir(filename))
-    with open(filename, 'w') as fp:
+    with io.open(filename, 'w', encoding=self.site_encoding) as fp:
       fp.write(self.template_renderer.render_template(self, __template, vars))
 
   def copy(self, url, source):

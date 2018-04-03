@@ -39,6 +39,12 @@ natively:
   index-files. In `file` mode, URls to other pages will link directly to the
   `.html` file. Default: `file`
 
+* `statigen.contentEncoding` &ndash; A hint to the content loader for the
+  encoding that the content files use. Default: `utf8`
+  
+* `statigen.siteEncoding` &ndash; Write HTML files in this encoding.
+  Default: `utf8`
+
 ## Content Configuration
 
 The way content is configured depends on the content-loader in place. The
