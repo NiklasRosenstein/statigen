@@ -315,6 +315,9 @@ class Config(object):
   def __init__(self, data):
     self._data = data
 
+  def __repr__(self):
+    return 'Config({!r})'.format(self._data)
+
   def option(self, key, create_intermediate=False):
     container = self._data
     parts = key.split('.')
