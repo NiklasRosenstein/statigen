@@ -3,6 +3,8 @@
     {% if 'site.copyrightNotice' in config %}
       <p class="copyright-notice" align="center">{{ config['site.copyrightNotice']|safe }}</p>
     {% endif %}
-    <p class="statigen-notice" align="center">Built with <a href="https://github.com/NiklasRosenstein/statigen">statigen.</a></p>
+    {% if config.get('site.showStatigenNotice', True) %}
+      <p class="statigen-notice" align="center">Built with <a href="https://github.com/NiklasRosenstein/statigen">statigen.</a></p>
+    {% endif %}
   </div>
 </div>

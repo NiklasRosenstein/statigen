@@ -9,9 +9,7 @@
           {{ post.config.get('title', 'Untitled') }}
         </a>
       </h1>
-      {% if 'date' in post.config %}
-      <p class="date">{{ post.config['date'].strftime(config['site.dateFormat']) }}</p>
-      {% endif %}
+      {% include "partials/post-date.html" %}
       {% if 'description' in post.config %}
       <p class="description">
         {{ post.config['description'] }}

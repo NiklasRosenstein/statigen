@@ -183,13 +183,16 @@ class MarkdownJinjaContentRenderer(ContentRenderer):
     template = env.from_string(body)
     body = template.render(context.template_vars)
 
-    return markdown.markdown(body, ['extra'])
+    return markdown.markdown(body, ['extra', 'admonition', 'codehilite', 'headerid', 'meta', 'sane_lists', 'smarty', 'toc'])
 
 
 class JinjaTemplateRenderer(TemplateRenderer):
 
   def render_template(self, context, template, vars):
-    loader = jinja2.FileSystemLoader([context.get_template_directory()])
+    paths = []
+    paths.append(path.join(context.project_directory, 'templates'))
+    paths.append(context.get_template_directory())
+    loader = jinja2.FileSystemLoader(paths)
     env = jinja2.Environment(loader=loader)
     template = env.get_template(template)
     context.template_vars = vars
@@ -363,8 +366,8 @@ class Content(object):
     if not isinstance(config, Config):
       config = Config(config)
     self.context = context
-    self.filename = path.norm(filename)
-    self.assets = path.norm(assets)
+    self.filename = path.canonical(filename)
+    self.assets = path.canonical(assets)
     self.name = name
     self.config = config
     self.body = body
@@ -386,6 +389,7 @@ class Context(object):
     if not isinstance(config, Config):
       config = Config(config)
     self.config = config
+    self.project_directory = '.'
     self.site_template = site_template
     self.content_loader = content_loader or MarkdownTomlContentLoader()
     self.content_renderer = content_renderer or MarkdownJinjaContentRenderer()
@@ -497,14 +501,17 @@ class Context(object):
     so that it is available from the specified URL.
     """
 
-    parent_dirs = [self.site_template.get_main_directory(self)]
-    parent_dirs += [self.config['statigen.contentDirectory']]
+    if path.isabs(source):
+      choices = [source]
+    else:
+      parent_dirs = [self.site_template.get_main_directory(self)]
+      parent_dirs += [self.project_directory]
+      choices = [path.join(x, source) for x in parent_dirs]
 
     target = self.url_to_abs_filename(url, False)
     print('copying {} ==> {} ({})'.format(source, target, url))
 
-    for dirname in parent_dirs:
-      current = path.canonical(source, dirname)
+    for current in choices:
       if path.exists(current):
         print('  from {}'.format(current))
         copy_tree(current, target)
@@ -517,7 +524,7 @@ class Context(object):
     """
 
     if path.exists(content.assets):
-      self.copy(url, content.assets)
+      self.copy(url, path.abs(content.assets))
 
   def load_content_from_directory(self, directory):
     if not path.isabs(directory):
@@ -605,6 +612,7 @@ def main(argv=None, prog=None):
     observer = watchdog.observers.Observer()
     observer.schedule(Handler(), path=config['statigen.contentDirectory'], recursive=True)
     observer.schedule(Handler(), path=context.site_template.get_main_directory(context), recursive=True)
+    observer.schedule(Handler(), path=context.project_directory, recursive=True)
     observer.start()
     try:
       while True:

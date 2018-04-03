@@ -1,0 +1,3 @@
+{% if 'date' in post.config %}
+<p class="post-details date">{{ post.config['date'].strftime(config['site.dateFormat']) }}</p>
+{% endif %}
