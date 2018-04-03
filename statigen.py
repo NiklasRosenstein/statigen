@@ -153,11 +153,11 @@ class MarkdownTomlContentLoader(ContentLoader):
 
 class MarkdownJinjaContentRenderer(ContentRenderer):
 
-  # TODO: Support some special syntax for Jinja execution in the
-  #       markdown file.
-
   def render_content(self, context, content):
-    return markdown.markdown(content.body, ['extra'])
+    env = jinja2.Environment()
+    template = env.from_string(content.body)
+    body = template.render(context.template_vars)
+    return markdown.markdown(body, ['extra'])
 
 
 class JinjaTemplateRenderer(TemplateRenderer):
@@ -166,6 +166,7 @@ class JinjaTemplateRenderer(TemplateRenderer):
     loader = jinja2.FileSystemLoader([context.get_template_directory()])
     env = jinja2.Environment(loader=loader)
     template = env.get_template(template)
+    context.template_vars = vars
     return template.render(vars)
 
 
