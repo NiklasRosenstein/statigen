@@ -182,7 +182,6 @@ class MarkdownJinjaContentRenderer(ContentRenderer):
 
     # Allow [[content]] references.
     def callback(m):
-      print('>>>', m.groups())
       groups = m.groups()
       content = context.load_content(groups[1])
       return '[{}]({})'.format(content.config.get('title', content.name), context.content_reference_to_url(groups[1]))
@@ -483,8 +482,12 @@ class Context(object):
     if isfile is None:
       isfile = not path.getsuffix(ref)
 
+    ref, fragment = ref.partition('#')[::2]
     url = posixpath.join(source, ref)
-    return self.url_to(url, source, isfile)
+    result = self.url_to(url, source, isfile)
+    if fragment:
+      result += '#' + fragment
+    return result
 
   def render(self, __url, __template, **vars):
     """
