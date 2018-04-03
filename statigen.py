@@ -143,9 +143,11 @@ class MarkdownTomlContentLoader(ContentLoader):
     return Content(context, filename, assets, name, config, content)
 
   def load_content(self, context, name):
-    if not path.isabs(name):
+    if path.isabs(name):
+      filename = name
+    else:
       content_dir = context.config['statigen.contentDirectory']
-      name = path.canonical(name + '.md', content_dir)
+      filename = path.canonical(name + '.md', content_dir)
     return self._load_file(context, filename, path.base(name))
 
   def load_content_from_directory(self, context, directory):
@@ -177,6 +179,14 @@ class MarkdownJinjaContentRenderer(ContentRenderer):
 
     # Update src="" attributes on img nodes.
     body = re.sub(r'(<img.*?src=")([^"]+?)(".*?>)', callback, body)
+
+    # Allow [[content]] references.
+    def callback(m):
+      print('>>>', m.groups())
+      groups = m.groups()
+      content = context.load_content(groups[1])
+      return '[{}]({})'.format(content.config.get('title', content.name), context.content_reference_to_url(groups[1]))
+    body = re.sub(r'(\[\[)([^\]]+?)(\]\])', callback, body)
 
     # Render the body with Jinja2.
     env = jinja2.Environment()
