@@ -129,3 +129,24 @@ table th, table td {
   display: block;
   border-radius: 0px 5px 5px 0;
 }
+.content .admonition {
+  background-color: #364957;
+  padding: .5em;
+  border-top: 3px solid #3af;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  color: white;
+  border-radius: 0 0 5px 5px;
+}
+.content .admonition .admonition-title {
+  font-weight: bold;
+}
+.content .admonition code {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.content .admonition.warn {
+  border-color: #ad0a0a;
+}
+.content .admonition.todo {
+  border-color: #cc8c1c;
+}
