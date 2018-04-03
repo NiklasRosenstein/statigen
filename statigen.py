@@ -495,6 +495,7 @@ def get_argument_parser(prog=None):
   parser.add_argument('-b', '--build-directory', help='Override build directory.')
   parser.add_argument('-t', '--template', help='Override template name.')
   parser.add_argument('-o', '--open', action='store_true', help='Open the index page after the build completed.')
+  parser.add_argument('-w', '--watch', action='store_true', help='Watch for changes and rebuild as soon as they are registered.')
   return parser
 
 
@@ -530,6 +531,29 @@ def main(argv=None, prog=None):
     import webbrowser
     webbrowser.open(path.join(config['statigen.buildDirectory'], 'index.html'))
 
+  if args.watch:
+    import time, threading
+    import watchdog.events, watchdog.observers
+    changed = threading.Event()
+    class Handler(watchdog.events.FileSystemEventHandler):
+      def on_any_event(self, event):
+        changed.set()
+    observer = watchdog.observers.Observer()
+    observer.schedule(Handler(), path=config['statigen.contentDirectory'], recursive=True)
+    observer.schedule(Handler(), path=context.site_template.get_main_directory(context), recursive=True)
+    observer.start()
+    try:
+      while True:
+        if changed.is_set():
+          print()
+          print('File changed, rebuilding ...')
+          print()
+          site_template.render(context)
+          changed.clear()
+        time.sleep(0.1)
+    finally:
+      observer.stop()
+    observer.join()
 
 _entry_point = lambda: sys.exit(main())
 
