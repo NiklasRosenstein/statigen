@@ -32,6 +32,7 @@ def render(context):
       context.render(url, 'blog.html', page=page, posts=posts)
       for post in posts:
         context.render('{}/{}'.format(url, post.name), 'post.html', post=post)
+        context.copy_assets('{}/{}'.format(url, post.name), post)
     else:
       context.render(url, 'page.html', page=page)
 

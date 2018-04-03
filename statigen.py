@@ -26,9 +26,10 @@ Statigen is a minimal, customizable static site generator.
 __version__ = '1.0.0'
 __author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
 
+from distutils.dir_util import copy_tree
 from nr import path
 from nr.datastructures.mappings import ChainDict
-from distutils.dir_util import copy_tree
+from urllib.parse import urlparse
 
 import abc
 import io
@@ -36,6 +37,7 @@ import jinja2
 import markdown
 import os
 import posixpath
+import re
 import shutil
 import six
 import sys
@@ -137,10 +139,13 @@ class MarkdownTomlContentLoader(ContentLoader):
       config = toml.loads(toml_content)
     else:
       config = {}
-    return Content(context, filename, name, config, content)
+    assets = path.rmvsuffix(filename)
+    return Content(context, filename, assets, name, config, content)
 
   def load_content(self, context, name):
-    filename = path.join(context.config['statigen.contentDirectory'], name + '.md')
+    if not path.isabs(name):
+      content_dir = context.config['statigen.contentDirectory']
+      name = path.canonical(name + '.md', content_dir)
     return self._load_file(context, filename, path.base(name))
 
   def load_content_from_directory(self, context, directory):
@@ -154,9 +159,30 @@ class MarkdownTomlContentLoader(ContentLoader):
 class MarkdownJinjaContentRenderer(ContentRenderer):
 
   def render_content(self, context, content):
+    body = content.body
+
+    def callback(m):
+      groups = list(m.groups())
+      url = groups[1].strip()
+      if url and not urlparse(url).scheme and not url.startswith('{{') \
+          and not url.startswith('#'):
+        groups[1] = context.content_reference_to_url(url)
+      return ''.join(groups)
+
+    # Update URL references in the form of [x]: y
+    body = re.sub(r'(\[[^\]]+?]:)(.*)', callback, body)
+
+    # Update inline references in the form of [x](y)
+    body = re.sub(r'(\[[^\]]*?]\()([^\)]+?)(\))', callback, body)
+
+    # Update src="" attributes on img nodes.
+    body = re.sub(r'(<img.*?src=")([^"]+?)(".*?>)', callback, body)
+
+    # Render the body with Jinja2.
     env = jinja2.Environment()
-    template = env.from_string(content.body)
+    template = env.from_string(body)
     body = template.render(context.template_vars)
+
     return markdown.markdown(body, ['extra'])
 
 
@@ -333,11 +359,12 @@ class Content(object):
   taken into account by the template.
   """
 
-  def __init__(self, context, filename, name, config, body):
+  def __init__(self, context, filename, assets, name, config, body):
     if not isinstance(config, Config):
       config = Config(config)
     self.context = context
     self.filename = path.norm(filename)
+    self.assets = path.norm(assets)
     self.name = name
     self.config = config
     self.body = body
@@ -356,7 +383,6 @@ class Context(object):
 
   def __init__(self, config, site_template, content_loader=None,
                content_renderer=None, template_renderer=None):
-
     if not isinstance(config, Config):
       config = Config(config)
     self.config = config
@@ -365,6 +391,7 @@ class Context(object):
     self.content_renderer = content_renderer or MarkdownJinjaContentRenderer()
     self.template_renderer = template_renderer or JinjaTemplateRenderer()
     self.globals = {}
+    self.current_url = None
 
     self.config.setdefault('statigen.urlFormat', 'file')
     self.config.setdefault('statigen.contentDirectory', '.')
@@ -412,30 +439,57 @@ class Context(object):
     build_dir = self.config['statigen.buildDirectory']
     return path.canonical(self.url_to_filename(url, isfile), build_dir)
 
-  def url_to(self, source, target, isfile=True):
+  def url_to(self, target, source=None, isfile=True):
+    if source is None:
+      if self.current_url is None:
+        raise RuntimeError('Context.current_url is not set.')
+      source = self.current_url
+
     source = self.real_url(source, isfile)
     target = self.real_url(target, isfile)
     res = posixpath.relpath(target, posixpath.dirname(source))
     #print('{} ==> {} :: {}'.format(source, target, res))
     return res
 
+  def content_reference_to_url(self, ref, source=None, isfile=None):
+    """
+    Transforms a content reference to a relative URL from *source* or the
+    Context's current URL. If *isfile* is #None (default), the type of the
+    reference will be determined automatically (content or asset).
+    """
+
+    if not source:
+      if not self.current_url:
+        raise RuntimeError('no current URL')
+      source = self.current_url
+
+    if isfile is None:
+      isfile = not path.getsuffix(ref)
+
+    url = posixpath.join(source, ref)
+    return self.url_to(url, source, isfile)
+
   def render(self, __url, __template, **vars):
     """
     Renders a template for a URL into the build directory.
     """
 
-    filename = self.url_to_abs_filename(__url)
-    print('rendering {} ({})'.format(filename, __url))
+    self.current_url = __url
+    try:
+      filename = self.url_to_abs_filename(__url)
+      print('rendering {} ({})'.format(filename, __url))
 
-    vars.setdefault('context', self)
-    vars.setdefault('config', self.config)
-    vars.setdefault('url_to', lambda x: self.url_to(__url, x))
-    vars.setdefault('url_for', lambda x: self.url_to(__url, x, False))
-    vars = ChainDict(vars, self.globals)
+      vars.setdefault('context', self)
+      vars.setdefault('config', self.config)
+      vars.setdefault('url_to', self.url_to)
+      vars.setdefault('url_for', lambda x: self.url_to(x, isfile=False))
+      vars = ChainDict(vars, self.globals)
 
-    path.makedirs(path.dir(filename))
-    with io.open(filename, 'w', encoding=self.site_encoding) as fp:
-      fp.write(self.template_renderer.render_template(self, __template, vars))
+      path.makedirs(path.dir(filename))
+      with io.open(filename, 'w', encoding=self.site_encoding) as fp:
+        fp.write(self.template_renderer.render_template(self, __template, vars))
+    finally:
+      self.current_url = None
 
   def copy(self, url, source):
     """
@@ -454,6 +508,16 @@ class Context(object):
       if path.exists(current):
         print('  from {}'.format(current))
         copy_tree(current, target)
+
+  def copy_assets(self, url, content):
+    """
+    Copy the assets associated with the specified #Content object to the
+    static output directory for *url*. The URL should be the same that the
+    #Content was rendered with.
+    """
+
+    if path.exists(content.assets):
+      self.copy(url, content.assets)
 
   def load_content_from_directory(self, directory):
     if not path.isabs(directory):
