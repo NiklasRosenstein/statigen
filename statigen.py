@@ -30,16 +30,12 @@ from distutils.dir_util import copy_tree
 from nr import path
 from nr.datastructures.mappings import ChainDict
 from urllib.parse import urlparse
-from pygments import highlight
-from pygments.formatters import HtmlFormatter, ClassNotFound
-from pygments.lexers import get_lexer_by_name
-from six.moves.html_parser import HTMLParser
 
 import abc
 import bs4
 import io
 import jinja2
-import misaka
+import nr.markdown
 import os
 import posixpath
 import re
@@ -128,19 +124,6 @@ class SiteTemplate(six.with_metaclass(abc.ABCMeta)):
 # Concrete Implementations
 ##
 
-class MisakaHighlightRenderer(misaka.HtmlRenderer):
-
-  def blockcode(self, text, lang):
-    try:
-      lexer = get_lexer_by_name(lang, stripall=True)
-    except ClassNotFound:
-      lexer = None
-    if lexer:
-      formatter = HtmlFormatter()
-      return highlight(text, lexer, formatter)
-    return '\n<pre><code>{}</code></pre>\n'.format(misaka.escape_html(text.strip()))
-
-
 class MarkdownTomlContentLoader(ContentLoader):
 
   def _load_file(self, context, filename, name):
@@ -210,60 +193,7 @@ class MarkdownJinjaContentRenderer(ContentRenderer):
     template = env.from_string(body)
     body = template.render(context.template_vars)
 
-    return self.render_markdown(body)
-
-  @staticmethod
-  def render_markdown(body, extensions=None):
-    if extensions is None:
-      extensions = [
-        'tables', 'fenced-code', 'footnotes', 'autolink', 'strikethrough',
-        'underline', 'highlight', 'quote', 'superscript', 'math', 'math-explicit',
-        'smartypants', 'inside-html', 'pygments']
-
-    if 'inside-html' in extensions:
-      extensions.remove('inside-html')
-      parse = lambda x: bs4.BeautifulSoup(x, 'html.parser' if sys.version_info[0] == 3 else 'HTMLParser')
-
-      soup = parse(body)
-      def recursion(x, markdownify=True):
-        if isinstance(x, bs4.element.NavigableString) and markdownify:
-          p = x.parent
-          at_root = (not p.parent)
-          # Render inner string as Markdown.
-          content = parse(MarkdownJinjaContentRenderer.render_markdown(str(x), extensions[:]))
-          # Unpack single paragraphs.
-          children = list(content.children)
-          if not at_root and \
-              sum(1 for x in children if x.name == 'p') == 1 and \
-              sum(1 for x in children if x.name is None) == len(children)-1:
-            next(x for x in children if x.name == 'p').unwrap()
-          x.replace_with(content)
-        elif isinstance(x, bs4.element.Tag):
-          markdownify = (not x.parent)
-          if not markdownify and x.name.lower() in ('td', 'th', 'p', 'a',
-              'details', 'summary', 'blockquote', 'div', 'span'):
-            markdownify = True
-          if not markdownify and 'markdown' in x.attrs:
-            markdownify = True
-          for child in x.children:
-            recursion(child, markdownify)
-      recursion(soup)
-      body = str(soup)
-      return body
-
-    if 'pygments' in extensions:
-      extensions.remove('pygments')
-      renderer = MisakaHighlightRenderer()
-    else:
-      renderer = misaka.HtmlRenderer()
-
-    result = misaka.Markdown(renderer, extensions=extensions)(body)
-
-    if 'smartypants' in extensions:
-      extensions.remove('smartypants')
-      result = misaka.smartypants(result)
-
-    return result
+    return nr.markdown.html(body)
 
 
 class JinjaTemplateRenderer(TemplateRenderer):
