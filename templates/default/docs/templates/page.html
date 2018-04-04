@@ -4,6 +4,7 @@
     <meta charset="{{ context.site_encoding }}">
     <title>{{ page.config['title'] }}</title>
     <link href="{{ url_for('/static/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('/static/pygments.css') }}" rel="stylesheet">
   </head>
   <body>
     {% macro toc(pages, current_page) %}
@@ -15,6 +16,11 @@
     </ul>
     {% endmacro %}
     <div class="sidebar">
+      {% if 'site.logo' in config %}
+      <div class="logo">
+        <img src="{{ url_for(config['site.logo']) }}">
+      </div>
+      {% endif %}
       <div class="title">
         <p><a href="{{ url_to('/') }}">{{ config.get('site.title', 'Untitled') }}</a></p>
       </div>

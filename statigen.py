@@ -230,7 +230,7 @@ class MarkdownJinjaContentRenderer(ContentRenderer):
           p = x.parent
           at_root = (not p.parent)
           # Render inner string as Markdown.
-          content = parse(MarkdownJinjaContentRenderer.render_markdown(str(x), extensions))
+          content = parse(MarkdownJinjaContentRenderer.render_markdown(str(x), extensions[:]))
           # Unpack single paragraphs.
           children = list(content.children)
           if not at_root and \
