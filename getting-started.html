@@ -4,10 +4,12 @@
     <meta charset="utf8">
     <title>Getting Started</title>
     <link href="static/style.css" rel="stylesheet">
+    <link href="static/pygments.css" rel="stylesheet">
   </head>
   <body>
     
     <div class="sidebar">
+      
       <div class="title">
         <p><a href="index.html">Statigen Documentation</a></p>
       </div>
@@ -18,12 +20,16 @@
       
       <li><a class="" href="index.html">Home</a></li>
       
+      
     <ul>
       
     </ul>
     
       
       <li><a class="active" href="getting-started.html">Getting Started</a></li>
+      
+        <div class="toc"><ul><li><a href="#Installing-Statigen">Installing Statigen</a></li><li><a href="#Starting-a-project">Starting a project</a></li></ul></div>
+      
       
     <ul>
       
@@ -32,12 +38,14 @@
       
       <li><a class="" href="config.html">Configuration</a></li>
       
+      
     <ul>
       
     </ul>
     
       
       <li><a class="" href="developer.html">Developer Documentation</a></li>
+      
       
     <ul>
       
@@ -67,64 +75,31 @@
         
           <h1>Getting Started</h1>
         
-        <h2>Installing Statigen</h2>
+        <h2 id="Installing-Statigen">Installing Statigen</h2>
 <p>Statigen can be installed from <a href="https://pypi.python.org/pypi">PyPI</a> via Pip.</p>
 <pre><code>pip install statigen
-</code></pre>
+</pre></code>
 <p>Once the installation is complete, try the following command to see if it
 worked:</p>
 <pre><code>statigen --version
-</code></pre>
-<h2>Starting a project</h2>
+</pre></code><h2 id="Starting-a-project">Starting a project</h2>
 <p>Create a directory where you want your page source and configuration files to
-live in, then create a <code>.statigen.toml</code> file and specify your site template
+live in, then create a <code class="codespan">.statigen.toml</code> file and specify your site template
 and title.</p>
-<pre><code>$ mkdir mysite &amp;&amp; cd mysite
-$ cat &gt; .statigen.toml &lt;&lt;EOF
-[statigen]
-template = &quot;default/docs&quot;
+<pre><code>$ mkdir mysite &amp;amp;&amp;amp; cd mysite
+$ cat &amp;gt; .statigen.toml &amp;lt;&lt;eof [site]=&quot;&quot; [statigen]=&quot;&quot; ```=&quot;&quot; eof=&quot;&quot; template=&quot;default/docs&quot; title=&quot;My Site&quot;&gt; Statigen comes with the following templates out of the box:
+&amp;gt;
+&amp;gt; * [default/blog](getting-started/templates/blog.html)
+&amp;gt; * [default/docs](getting-started/templates/docs.html) (the one you are looking at right now)
 
-[site]
-title = &quot;My Site&quot;
-EOF
-</code></pre>
+Now create a bunch of `.md` files in the same directory. The section enclosed
+in `+++` will be parsed as TOML and allows you to define properties in a file
+that may be respected by the template.
 
-<blockquote>
-<p>Statigen comes with the following templates out of the box:</p>
-<ul>
-<li><a href="./templates/blog">default/blog</a></li>
-<li><a href="./templates/docs">default/docs</a> (the one you are looking at right now)</li>
-</ul>
-</blockquote>
-<p>Now create a bunch of <code>.md</code> files in the same directory. The section enclosed
-in <code>+++</code> will be parsed as TOML and allows you to define properties in a file
-that may be respected by the template.</p>
-<pre><code>$ cat &gt; index.md &lt;&lt;EOF
-+++
-title = &quot;Home&quot;
-renderTitle = false
-ordering = 0
-+++
-# Welcome to my page!
-EOF
-$ cat &gt; another.md &lt;&lt;EOF
-+++
-title = &quot;Another Page&quot;
-ordering = 1
-+++
-Here's another page!
-EOF
-</code></pre>
-
-<h2>Building the site</h2>
-<p>Producing the static HTML site is as simple as running <code>statigen</code> from the
-command-line.</p>
-<pre><code>$ statigen
-rendering build/index.html (/)
-rendering build/another.html (/another)
-copying static ==&gt; build/static (/static)
+</pre></code>
+<p>$ cat &gt; index.md &lt;&lt;eof #=&ldquo;&rdquo; $=&ldquo;&rdquo; +++=&ldquo;&rdquo; cat=&ldquo;&rdquo; eof=&ldquo;&rdquo; my=&ldquo;&rdquo; ordering=&ldquo;0&rdquo; page!=&ldquo;&rdquo; rendertitle=&ldquo;false&rdquo; title=&ldquo;Home&rdquo; to=&ldquo;&rdquo; welcome=&ldquo;&rdquo;&gt; another.md &lt;&lt;eof ##=&ldquo;&rdquo; $=&ldquo;&rdquo; (=&ldquo;&rdquo; )=&ldquo;&rdquo; +++=&ldquo;&rdquo; &ldquo;`=&rdquo;&ldquo; `statigen`=&rdquo;&ldquo; another=&rdquo;&ldquo; another)=&rdquo;&ldquo; another.html=&rdquo;&ldquo; as=&rdquo;&ldquo; build=&rdquo;&ldquo; building=&rdquo;&ldquo; command-line.=&rdquo;&ldquo; copying=&rdquo;&ldquo; eof=&rdquo;&ldquo; from=&rdquo;&ldquo; here&rsquo;s=&rdquo;&ldquo; html=&rdquo;&ldquo; index.html=&rdquo;&ldquo; is=&rdquo;&ldquo; ordering=&quot;1&rdquo; page!=&ldquo;&rdquo; producing=&ldquo;&rdquo; rendering=&ldquo;&rdquo; running=&ldquo;&rdquo; simple=&ldquo;&rdquo; site=&ldquo;&rdquo; static=&ldquo;&rdquo; statigen=&ldquo;&rdquo; the=&ldquo;&rdquo; title=&ldquo;Another Page&rdquo;&gt; build/static (/static)
   from /home/niklas/.local/lib/python3.6/site-packages/statigen/templates/default/docs/static
-</code></pre>
+&ldquo;`&lt;/eof&gt;&lt;/eof&gt;&lt;/eof&gt;</p>
       </div>
     </div>
   </body>

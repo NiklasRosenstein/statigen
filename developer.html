@@ -4,10 +4,12 @@
     <meta charset="utf8">
     <title>Developer Documentation</title>
     <link href="static/style.css" rel="stylesheet">
+    <link href="static/pygments.css" rel="stylesheet">
   </head>
   <body>
     
     <div class="sidebar">
+      
       <div class="title">
         <p><a href="index.html">Statigen Documentation</a></p>
       </div>
@@ -18,12 +20,14 @@
       
       <li><a class="" href="index.html">Home</a></li>
       
+      
     <ul>
       
     </ul>
     
       
       <li><a class="" href="getting-started.html">Getting Started</a></li>
+      
       
     <ul>
       
@@ -32,12 +36,16 @@
       
       <li><a class="" href="config.html">Configuration</a></li>
       
+      
     <ul>
       
     </ul>
     
       
       <li><a class="active" href="developer.html">Developer Documentation</a></li>
+      
+        <div class="toc"><ul><li><a href="#Site-Templates">Site Templates</a></li><li><a href="#Template-Renderers">Template Renderers</a></li><li><a href="#Content-Loaders">Content Loaders</a></li><li><a href="#Content-Renderers">Content Renderers</a></li></ul></div>
+      
       
     <ul>
       
@@ -67,57 +75,56 @@
         
           <h1>Developer Documentation</h1>
         
-        <h2>Site Templates</h2>
+        <h2 id="Site-Templates">Site Templates</h2>
 <p>Site templates define the structure and looks of the generated static HTML
 page. A site template is usually a Python script that implements at least
-a <code>render(context)</code> function. It may also implement the following functions:</p>
+a <code class="codespan">render(context)</code> function. It may also implement the following functions:</p>
 <ul>
-<li><code>init(context)</code></li>
-<li><code>content_loaded(context, content)</code></li>
-</ul>
-<p>The <code>render()</code> function, when called, must use the <code>statigen.Context</code> API
+<li><code class="codespan">init(context)</code>
+</li>
+<li><code class="codespan">content_loaded(context, content)</code>
+</li></ul>
+<p>The <code class="codespan">render()</code> function, when called, must use the <code class="codespan">statigen.Context</code> API
 to produce HTML pages. Below is a simple template that renders all content
-files with the same <code>page.html</code> template (not recursive).</p>
-<pre><code class="python">def render(context):
-  pages = context.load_content_from_directory('.')
-  pages.sort(key=lambda p: (
-    p.config.get('ordering', 999), p.config.get('title', p.name)))
-  for i, page in enumerate(pages):
-    url = '/' if i == 0 else '/' + p.name
-    context.render(url, 'page.html', page=page, pages=pages)
-  context.copy('/static', 'static')
-</code></pre>
-
-<h2>Template Renderers</h2>
+files with the same <code class="codespan">page.html</code> template (not recursive).</p><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+  <span class="n">pages</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">load_content_from_directory</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+  <span class="n">pages</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ordering&#39;</span><span class="p">,</span> <span class="mi">999</span><span class="p">),</span> <span class="n">p</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span>
+  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">page</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pages</span><span class="p">):</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;page.html&#39;</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span> <span class="n">pages</span><span class="o">=</span><span class="n">pages</span><span class="p">)</span>
+  <span class="n">context</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s1">&#39;/static&#39;</span><span class="p">,</span> <span class="s1">&#39;static&#39;</span><span class="p">)</span>
+</pre></div>
+<h2 id="Template-Renderers">Template Renderers</h2>
 <p>Template renderers implement the rendering of the HTML template files that a
 Site Template delivers. The default renderer expects Jinja templates. Below is
-a simple template that plays with the site-template displayed above.</p>
-<pre><code class="html">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;{{ page.config.get('title', p.name) }}&lt;/title&gt;
-    &lt;link href=&quot;{{ url_for('/static/style.css') }}&quot; rel=&quot;stylesheet&quot;&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;ul&gt;
-      {% for p in pages %}
-      &lt;li class=&quot;{{ 'active' if p == page else '' }}&quot;&gt;
-        &lt;a href=&quot;{{ url_to('/' + p.name) }}&quot;&gt;{{ p.config.get('title', p.name) }}&lt;/a&gt;
-      &lt;/li&gt;
-      {% endfor %}
-    &lt;/ul&gt;
-    &lt;h1&gt;{{ page.config.get('title', p.name) }}&lt;/h1&gt;
-    {{ page.render()|safe }}
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
+a simple template that plays with the site-template displayed above.</p><div class="highlight"><pre><span></span><span class="cp">&lt;!DOCTYPE html&gt;</span>
 
-<h2>Content Loaders</h2>
-<p>Content loaders implement loading <code>statigen.Content</code> objects from a Content ID
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>{{ page.config.get(&#39;title&#39;, p.name) }}<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">link</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{ url_for(&#39;/static/style.css&#39;) }}&quot;</span> <span class="na">rel</span><span class="o">=</span><span class="s">&quot;stylesheet&quot;</span><span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+      {% for p in pages %}
+      <span class="p">&lt;</span><span class="nt">li</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;{{ &#39;active&#39; if p == page else &#39;&#39; }}&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{ url_to(&#39;/&#39; + p.name) }}&quot;</span><span class="p">&gt;</span>
+{{ p.config.get(‘title’, p.name) }}<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+      {% endfor %}
+    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>{{ page.config.get(&#39;title&#39;, p.name) }}<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    {{ page.render()|safe }}
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</pre></div>
+<h2 id="Content-Loaders">Content Loaders</h2>
+<p>Content loaders implement loading <code class="codespan">statigen.Content</code> objects from a Content ID
 or from a directory relative to the content directory. The default loader
-expects <code>.md</code> (Markdown) files and passes the first section enclosed in <code>+++</code>
+expects <code class="codespan">.md</code> (Markdown) files and passes the first section enclosed in <code class="codespan">+++</code>
 to TOML.</p>
-<p>Below is an example content file <code>home.md</code> which could be used with the
+<p>Below is an example content file <code class="codespan">home.md</code> which could be used with the
 site-template and template renderer displayed above.</p>
 <pre><code>+++
 title = &quot;Home&quot;
@@ -125,9 +132,7 @@ ordering = 0
 +++
 
 Welcome to my first site generated with Statigen!
-</code></pre>
-
-<h2>Content Renderers</h2>
+</pre></code><h2 id="Content-Renderers">Content Renderers</h2>
 <p>Content renderers take the content delivered by a Content loader and renders
 it. The default renderer uses the Python Markdown module and renders it with
 all extensions enabled.</p>
