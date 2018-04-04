@@ -67,6 +67,16 @@ class ContentLoader(six.with_metaclass(abc.ABCMeta)):
 class ContentRenderer(six.with_metaclass(abc.ABCMeta)):
 
   @abc.abstractmethod
+  def get_table_of_contents(self, context, content):
+    """
+    Return a table of contents for the *context*. This should be a nested
+    datastructure with one sentinel root element and the properties `content`,
+    `header_id`, `level`, `depth`, `parent` and `children`. Rendering the
+    returned object as a string should give HTML code that resembles the
+    table of contents.
+    """
+
+  @abc.abstractmethod
   def render_content(self, context, content):
     """
     Render the #Content object *content* to HTML.
@@ -161,7 +171,14 @@ class MarkdownTomlContentLoader(ContentLoader):
 
 class MarkdownJinjaContentRenderer(ContentRenderer):
 
+  def get_table_of_contents(self, context, content):
+    self.render_content(context, content)
+    return content._mdtoc
+
   def render_content(self, context, content):
+    if hasattr(content, '_mdcache'):
+      return content._mdcache
+
     body = content.body
 
     def callback(m):
@@ -193,7 +210,10 @@ class MarkdownJinjaContentRenderer(ContentRenderer):
     template = env.from_string(body)
     body = template.render(context.template_vars)
 
-    return nr.markdown.html(body)
+    md = nr.markdown.Markdown()
+    content._mdcache = md(body)
+    content._mdtoc = md.toc
+    return content._mdcache
 
 
 class JinjaTemplateRenderer(TemplateRenderer):
@@ -387,6 +407,9 @@ class Content(object):
 
   def __repr__(self):
     return 'Content(name={!r}, filename={!r})'.format(self.name, self.filename)
+
+  def toc(self):
+    return self.context.content_renderer.get_table_of_contents(self.context, self)
 
   def render(self):
     return self.context.content_renderer.render_content(self.context, self)

@@ -11,6 +11,9 @@
     <ul>
       {% for page in pages %}
       <li><a class="{{'active' if page == current_page else ''}}" {% if page.config.get('viewable', True) %}href="{{ url_to(page.url) }}"{% endif %}>{{ page.config['title'] }}</a></li>
+      {% if page == current_page %}
+        {{ page.toc() }}
+      {% endif %}
       {{ toc(page.children, current_page) }}
       {% endfor %}
     </ul>
