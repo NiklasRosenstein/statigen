@@ -23,7 +23,7 @@
 Statigen is a minimal, customizable static site generator.
 """
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
 
 from distutils.dir_util import copy_tree
