@@ -1,7 +1,7 @@
 
 def _load_page_tree(context):
   root_pages = context.load_content_from_directory('.')
-  sort_key = lambda p: (p.config.get('ordering', 9999), p.config['title'])
+  sort_key = lambda p: (p.config.get('ordering', 9999), p.config['title'].lower())
   def recursion(parent, page):
     path = '{}/{}'.format(parent, page.name)
     try:
