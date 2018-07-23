@@ -27,14 +27,14 @@ __version__ = '1.0.1'
 __author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
 
 from distutils.dir_util import copy_tree
-from nr import path
-from nr.datastructures.mappings import ChainDict
+from nr.types.map import ChainMap
 from urllib.parse import urlparse
 
 import abc
 import bs4
 import io
 import jinja2
+import nr.fs as path
 import nr.markdown
 import os
 import posixpath
@@ -527,7 +527,7 @@ class Context(object):
       vars.setdefault('config', self.config)
       vars.setdefault('url_to', self.url_to)
       vars.setdefault('url_for', lambda x: self.url_to(x, isfile=False))
-      vars = ChainDict(vars, self.globals)
+      vars = ChainMap(vars, self.globals)
 
       path.makedirs(path.dir(filename))
       with io.open(filename, 'w', encoding=self.site_encoding) as fp:
@@ -645,10 +645,13 @@ def main(argv=None, prog=None):
   if args.watch:
     import time, threading
     import watchdog.events, watchdog.observers
+    build_dir = path.abs(config['statigen.buildDirectory'])
     changed = threading.Event()
     class Handler(watchdog.events.FileSystemEventHandler):
       def on_any_event(self, event):
-        changed.set()
+        rel = path.rel(path.abs(event.src_path), build_dir)
+        if not path.issub(rel):  # Not an event in the build directory
+          changed.set()
     observer = watchdog.observers.Observer()
     observer.schedule(Handler(), path=config['statigen.contentDirectory'], recursive=True)
     observer.schedule(Handler(), path=context.site_template.get_main_directory(context), recursive=True)
