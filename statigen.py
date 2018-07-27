@@ -136,7 +136,7 @@ class SiteTemplate(six.with_metaclass(abc.ABCMeta)):
 
 class MarkdownTomlContentLoader(ContentLoader):
 
-  def _load_file(self, context, filename, name):
+  def _load_file(self, context, filename, name, override_config=None):
     with io.open(filename, encoding=context.content_encoding) as fp:
       content = fp.read()
     if content.lstrip().startswith('+++'):
@@ -151,6 +151,15 @@ class MarkdownTomlContentLoader(ContentLoader):
     else:
       config = {}
     assets = path.rmvsuffix(filename)
+
+    if override_config:
+      config.update(override_config)
+
+    if 'contentFrom' in config:
+      filename = os.path.join(os.path.dirname(filename), config['contentFrom'])
+      del config['contentFrom']
+      return self._load_file(context, filename, name, config)
+
     return Content(context, filename, assets, name, config, content)
 
   def load_content(self, context, name):
