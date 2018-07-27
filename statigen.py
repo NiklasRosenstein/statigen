@@ -488,7 +488,8 @@ class Context(object):
     source = self.real_url(source, isfile)
     target = self.real_url(target, isfile)
     res = posixpath.relpath(target, posixpath.dirname(source))
-    #print('{} ==> {} :: {}'.format(source, target, res))
+    if self.config['statigen.urlFormat'] == 'directory' and source != '/':
+      res = '../' + res
     return res
 
   def content_reference_to_url(self, ref, source=None, isfile=None):
